@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Demo Thanh Toán Paypal</title>
+</head>
+<body>
+    <h1>THANH TOÁN PAYPAL</h1>
+    <!-- Set up a container element for the button -->
+    <div id="paypal-button-container"></div>
+
+    <script src="https://www.paypal.com/sdk/js?client-id=Ab35ZLIG2tPdUDz9pfDd-696HyQYrWXVoj0R08tmyhPANj1-PRZqOuHGXl4kNoqsIBn9mxvdy9dq55De&currency=USD"></script>
+
+    <script>
+        paypal.Buttons({
+            async createOrder() {
+                const response = await fetch("/payment/create-paypal-order", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        cart: [{
+                            sku: "YOUR_PRODUCT_STOCK_KEEPING_UNIT",
+                            quantity: "YOUR_PRODUCT_QUANTITY",
+                        }]
+                    })
+                });
+
+                const order = await response.json();
+
+                return order.id;
+            },
+            async onApprove(data) {
+                // Capture the funds from the transaction.
+                const response = await fetch("/payment/capture-paypal-order", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        orderID: data.orderID
+                    })
+                })
+
+                const details = await response.json();
+
+                // Show success message to buyer
+                alert(`Transaction completed by ${details.payer.name.given_name}`);
+            },
+            onCancel(data) {
+                // Show a cancel page, or return to cart
+                window.location.assign("/your-cancel-page");
+            }
+        }).render('#paypal-button-container');
+    </script>
+</body>
+</html>
