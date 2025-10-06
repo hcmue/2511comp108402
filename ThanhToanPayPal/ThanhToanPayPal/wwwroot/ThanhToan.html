@@ -20,7 +20,7 @@
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        "value": "1234",
+                        "value": "1234", //Lấy ở đâu???
                         "currency_code": "USD"
                     })
                 });
@@ -31,12 +31,9 @@
             },
             async onApprove(data) {
                 // Capture the funds from the transaction.
-                const response = await fetch("/payment/capture-paypal-order", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        orderID: data.orderID
-                    })
-                })
+                const response = await fetch(`/payment/capture-paypal-order?orderId=${data.orderID}`, {
+                    method: "POST"
+                });
 
                 const details = await response.json();
 
